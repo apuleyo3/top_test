@@ -3,9 +3,39 @@
     <head>
         <title>{{title}}</title>
         {% include 'header.html' %}
+        <style>
+            table.dataframe td {padding: 5px;font-size: 13px;word-break: break-all;}
+            table.dataframe thead {background: #343a40;color: white;}
+            table.dataframe th {text-align: center;font-weight: 400;}
+            table.dataframe {table-layout: fixed !important;}
+            div#title-group > * {display: inline-block;}
+        </style>
+        <script>
+            $(document).ready(function(){
+                $('#genmodal').on('shown.bs.modal', function () {
+                    $('#recipient-name').trigger('focus')
+                    $( "#datepicker" ).datepicker();
+                })
+            });
+        </script>
     </head>
     <body>
         {% include 'nav.html' %}
-        
+        <div id="table-wrapper" class="container-fluid p-2">
+            <div id="title-group"><h1>{{title}}</h1><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#genmodal" data-whatever="Publications">Add</button></div>
+            <div id="table-inner">
+                {% if results is not none %}
+                {{results | safe}}
+                {% else %}
+                <div class="no-result">The query returned no results</div>
+                {% endif %}
+            </div>
+            <div id="message">{{ message }}</div>
+        </div>
+        {% if action == 'publications' %}
+            {% include 'publications.html' %}
+        {% elif action == 'journalists' %}
+            {% include 'journalists.html' %}
+        {% endif %}
     </body>
 </html>
