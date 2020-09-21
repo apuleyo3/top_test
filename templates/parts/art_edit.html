@@ -13,7 +13,7 @@
         {% include 'nav.html' %}
         <div class="container py-3">
           <h1>Edit Article</h1>
-        <form method="POST" action="/{{ action }}">
+        <form method="POST" action="/{{ action }}/edit?id={{ id }}">
             <div class="form-group">
               <label for="name"  class="col-form-label">Name:</label>
               <input type="text" name="name" class="form-control" id="name" value="{{ val[0][1] }}">

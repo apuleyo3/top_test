@@ -67,7 +67,13 @@ def pubs():
 @app.route("/journalists", methods=['GET', 'POST'])
 def journal():
     conn = pymysql.connect(host='172.17.0.3',port=int(3306), user='root', passwd='Xoco_137946', db='top_main')
-    results = pd.read_sql_query("""SELECT * FROM journalist""", conn)
+    results = pd.read_sql_query("""
+    SELECT j.id, j.first_name, j.last_name, j.email, j.phone_number, j.language_spoken, j.title, j.linkedin, j.twitter, j.notes,
+    c.name as publication_id
+    FROM journalist j
+    JOIN publication c
+    ON j.publication_id = c.id
+    """, conn)
     if request.method == 'POST':
         fname = "'" + request.form['fname'] + "'" or "None"
         lname = "'" + request.form['lname'] + "'" or "None"
@@ -98,7 +104,15 @@ def journal():
 @app.route("/articles", methods=['GET', 'POST'])
 def arts():
     conn = pymysql.connect(host='172.17.0.3',port=int(3306), user='root', passwd='Xoco_137946', db='top_main')
-    results = pd.read_sql_query("""SELECT * FROM article""", conn)
+    results = pd.read_sql_query("""
+    SELECT a.id, a.name, a.title, a.subject, a.publish_time,
+    c.name as publication_id, CONCAT(j.first_name, ' ', j.last_name) as journalist_id
+    FROM article a
+    JOIN publication c
+    ON a.publication_id = c.id
+    JOIN journalist j
+    ON a.journalist_id = j.id
+    """, conn)
 
     if request.method == 'POST':
         name = "'" + request.form['name'] + "'" or "None"
@@ -132,24 +146,78 @@ def arts():
         return render_template("table.html", title="Articles", action="articles", iter=zip(ids,nms,lms), \
              table=zip(results['id'], results['name'], results['title'], results['subject'], results['publish_time'], results['publication_id'], results['journalist_id']))
 
-"""EDIT"""
+"""
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+EDIT
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+"""
 
 
 @app.route("/publication/edit", methods=['GET', 'POST'])
 def pub_edit():
     if request.method == 'POST':
         id = request.args['id']
+        name = "'" + request.form['name'] + "'" 
+        website = "'" + request.form['website'] + "'"  or "None"
+        visitors = request.form['visitor'] or 0
+        address1 = "'" + request.form['address1'] + "'"  or "None"
+        address2 = "'" + request.form['address2'] + "'"  or "None"
+        city = "'" + request.form['city'] + "'"  or "None"
+        country = "'" + request.form['country'] + "'"  or "None"
+        state = "'" + request.form['state'] + "'"  or "None"
+        zipcode = "'" + request.form['zip-code'] + "'"  or "None"
+        market = "'" + request.form['market'] + "'"  or "None"
+        notes = "'" + request.form['notes'] + "'"  or "None"
+
+        query = "UPDATE publication SET " + 'name=' + name + ',' + 'website=' + website + ',' + 'unique_visitors_per_month=' + visitors \
+            + ',' + 'address_1=' + address1 + ',' + 'address_2=' + address2 + ',' + 'city=' + city + ',' + 'country=' + country \
+            + ',' + 'state=' + state + ',' + 'zip_code=' + zipcode + ',' + 'media_market=' + market + ',' + 'notes=' + notes
+        my_id = query + " WHERE `id` = " + id
+
+        cur = mysql.connection.cursor()
+        cur.execute(my_id)
+        mysql.connection.commit()
+        cur.close()
+        return redirect('/publications')
+
+        
     if 'id' in request.args:
         conn = pymysql.connect(host='172.17.0.3',port=int(3306), user='root', passwd='Xoco_137946', db='top_main')
         query = "SELECT * FROM publication WHERE `id` =" + str(request.args['id'])
         edt = pd.read_sql_query(query, conn)
         edt.columns = ['id', 'Name', 'Web', 'Visitors', 'Address', 'Address 2', 'City', 'State', 'Zip code', 'Country', 'Market', 'Notes']
-        return render_template('parts/pub_edit.html', action="publications", val=edt.values)
+        return render_template('parts/pub_edit.html', action="publication", val=edt.values, id=request.args['id'])
     else:
         return redirect('/publications')
 
 @app.route("/journalist/edit", methods=['GET', 'POST'])
 def jrn_edit():
+
+    if request.method == 'POST':
+        id = request.args['id']
+        fname = "'" + request.form['fname'] + "'" or "None"
+        lname = "'" + request.form['lname'] + "'" or "None"
+        email = "'" + request.form['email'] + "'" or "None"
+        phone = request.form['phone'] or 0
+        lang = "'" + request.form['language'] + "'" or "None"
+        title = "'" + request.form['title'] + "'" or " "
+        linkedin = "'" + request.form['linkedin'] + "'" or "None"
+        twitter = "'" + request.form['twitter'] + "'" or "None"
+        notes = "'" + request.form['notes'] + "'" or "None"
+        pub = "'" + request.form['publication'] + "'"
+
+        query = "UPDATE journalist SET " + 'first_name=' + fname + ',' + 'last_name=' + lname + ',' + 'email=' + email \
+            + ',' + 'phone_number=' + phone + ',' + 'language_spoken=' + lang + ',' + 'title=' + title \
+            + ',' + 'linkedin=' + linkedin + ',' + 'twitter=' + twitter + ',' + 'notes=' + notes + ',' + 'publication_id=' + pub
+        
+        my_id = query + " WHERE `id` = " + id
+        
+        cur = mysql.connection.cursor()
+        cur.execute(my_id)
+        mysql.connection.commit()
+        cur.close()
+        return redirect('/journalists')
+
 
     if 'id' in request.args:
         conn = pymysql.connect(host='172.17.0.3',port=int(3306), user='root', passwd='Xoco_137946', db='top_main')
@@ -160,12 +228,39 @@ def jrn_edit():
         ids = ops['id']
         nms = ops['name']
 
-        return render_template('parts/jrn_edit.html', val=edt.values, action="journalists", iter=zip(ids, nms))
+        return render_template('parts/jrn_edit.html', val=edt.values, action="journalist", iter=zip(ids, nms), id=request.args['id'])
     else:
         return redirect('/journalists')
 
 @app.route("/article/edit", methods=['GET', 'POST'])
 def art_edit():
+    if request.method == 'POST':
+        id = request.args['id']
+        name = "'" + request.form['name'] + "'" or "None"
+        title = "'" + request.form['title'] + "'" or "None"
+        subject = "'" + request.form['subject'] + "'" or "None"
+        publish = request.form['publish'] or "None"
+        jrn = request.form['journalist'] or 0
+
+        conn = pymysql.connect(host='172.17.0.3',port=int(3306), user='root', passwd='Xoco_137946', db='top_main')
+
+        qr = "SELECT `publication_id` FROM `journalist` WHERE `id` = " + request.form['journalist']
+        pb = pd.read_sql_query(qr, conn)
+        pb = list(pb.values)
+        npb = str(pb[0][0])
+
+        publish = "'" + publish.replace('/', '-') + "'"
+        query = "UPDATE article SET " + 'name=' + name + ',' + 'title=' + title + ',' + 'subject=' +  subject \
+            + ',' + 'publish_time=' + publish + ',' + 'publication_id=' + npb + ',' + 'journalist_id=' + jrn
+
+        my_id = query + " WHERE `id` = " + id
+        
+        cur = mysql.connection.cursor()
+        cur.execute(my_id)
+        mysql.connection.commit()
+        cur.close()
+        return redirect('/articles')
+ 
     if 'id' in request.args:
         conn = pymysql.connect(host='172.17.0.3',port=int(3306), user='root', passwd='Xoco_137946', db='top_main')
         query = "SELECT * FROM article WHERE `id` =" + str(request.args['id'])
@@ -176,11 +271,15 @@ def art_edit():
         nms = ops['first_name']
         lms = ops['last_name']
 
-        return render_template('parts/art_edit.html', val=edt.values, action="articles", iter=zip(ids, nms, lms))
+        return render_template('parts/art_edit.html', val=edt.values, action="article", iter=zip(ids, nms, lms), id=request.args['id'])
     else:
         return redirect('/journalists')
 
-"""DELETE"""
+"""
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+DELETE
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+"""
 
 @app.route("/article/delete", methods=['GET'])
 def del_art():
@@ -211,5 +310,58 @@ def del_pub():
         mysql.connection.commit()
         cur.close()
         return redirect('/publications')
+
+"""
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+FILTER
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+"""
+
+@app.route("/journalists/filterby", methods=['GET'])
+def jrn_filter():
+    if 'mail' in request.args:
+        jname = request.args['mail']
+        conn = pymysql.connect(host='172.17.0.3',port=int(3306), user='root', passwd='Xoco_137946', db='top_main')
+        query = """
+        SELECT a.id, a.name, a.title, a.subject, a.publish_time, c.name as publication_id, 
+        CONCAT(j.first_name, ' ', j.last_name) as journalist_id
+        FROM article a
+        JOIN publication c
+        ON a.publication_id = c.id
+        JOIN journalist j
+        ON a.journalist_id = j.id
+        WHERE j.email = '""" + jname + "'"
+
+        results = pd.read_sql_query(query, conn)
+        ops = pd.read_sql_query("""SELECT id, first_name, last_name FROM journalist""", conn)
+        ids = ops['id']
+        nms = ops['first_name']
+        lms = ops['last_name']
+    
+        return render_template("table.html", title="Articles", action="articles", iter=zip(ids,nms,lms), \
+             table=zip(results['id'], results['name'], results['title'], results['subject'], results['publish_time'], results['publication_id'], results['journalist_id']))
+    
+    elif 'pid' in request.args:
+        pid = request.args['pid']
+        conn = pymysql.connect(host='172.17.0.3',port=int(3306), user='root', passwd='Xoco_137946', db='top_main')
+        query = """
+        SELECT j.id, j.first_name, j.last_name, j.email, j.phone_number, j.language_spoken, j.title, j.linkedin, j.twitter, j.notes,
+        c.name as publication_id
+        FROM journalist j
+        JOIN publication c
+        ON j.publication_id = c.id
+        WHERE j.publication_id = """ + pid
+
+        results = pd.read_sql_query(query, conn)
+
+        ops = pd.read_sql_query("""SELECT id, name FROM publication""", conn)
+        ids = ops['id']
+        nms = ops['name']
+        return render_template("table.html", title="Journalists",  action="journalists", iter=zip(ids, nms), \
+             table=zip(results['id'], results['first_name'], results['last_name'], results['email'], results['phone_number'], results['language_spoken'], results['title'], results['linkedin'], results['twitter'], results['notes'], results['publication_id']))
+
+    else:
+        return redirect('/journalists')
+
 
 app.run(host='0.0.0.0', port=80)
