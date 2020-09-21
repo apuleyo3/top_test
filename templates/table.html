@@ -9,12 +9,14 @@
             table.dataframe th {text-align: center;font-weight: 400;}
             table.dataframe {table-layout: fixed !important;}
             div#title-group > * {display: inline-block;}
+            div#title-group h1 {margin: 0 15px 25px 0;}
+            .btn {position: relative;bottom: 8px;}
         </style>
         <script>
             $(document).ready(function(){
                 $('#genmodal').on('shown.bs.modal', function () {
                     $('#recipient-name').trigger('focus')
-                    $( "#datepicker" ).datepicker();
+                    $( "#datepicker" ).datepicker({ dateFormat: 'yy-mm-dd' }); 
                 })
             });
         </script>
@@ -22,10 +24,16 @@
     <body>
         {% include 'nav.html' %}
         <div id="table-wrapper" class="container-fluid p-2">
-            <div id="title-group"><h1>{{title}}</h1><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#genmodal" data-whatever="Publications">Add</button></div>
+            <div id="title-group"><h1>{{title}}</h1><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#genmodal" data-whatever="Publications">+</button></div>
             <div id="table-inner">
                 {% if results is not none %}
-                {{results | safe}}
+                    {% if action == 'publications' %}
+                        {% include 'parts/pub_results.html' %}
+                    {% elif action == 'journalists' %}
+                        {% include 'parts/jrn_results.html' %}
+                    {% elif action == 'articles' %}
+                        {% include 'parts/art_results.html' %}
+                    {% endif %}
                 {% else %}
                 <div class="no-result">The query returned no results</div>
                 {% endif %}
@@ -36,6 +44,8 @@
             {% include 'publications.html' %}
         {% elif action == 'journalists' %}
             {% include 'journalists.html' %}
+        {% elif action == 'articles' %}
+            {% include 'articles.html' %}
         {% endif %}
     </body>
 </html>

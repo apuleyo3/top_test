@@ -1,0 +1,9 @@
+<table class="table">
+    <thead class="thead-dark"><tr style="text-align: right;"><th>Id</th><th>First name</th><th>Last name</th><th>E-mail</th><th>Phone</th><th>Language</th><th>Title</th><th>LinkedIn</th><th>Twitter</th>
+        <th>Notes</th><th>Publication</th></tr></thead>
+        <tbody>
+        {% for a,b,c,d,e,f,g,h,i,j,k in table %}   
+            <tr><td><a href="/journalist/delete?id={{ a }}"><img src="{{ url_for('static', filename='images/delete.png')}}" width="24px" height="24px" /></a><a href="/journalist/edit?id={{ a }}"><img src="{{ url_for('static', filename='images/edit.png') }}" width="24px" height="24px"/></a></td><td>{{ b }}</td><td>{{ c }}</td><td>{{ d }}</td><td>{{ e }}</td><td>{{ f }}</td><td>{{ g }}</td><td>{{ h }}</td><td>{{ i }}</td><td>{{ j }}</td><td>{{ k }}</td></tr>
+        {% endfor %}
+        </tbody>
+</table>

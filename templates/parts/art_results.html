@@ -1,0 +1,8 @@
+<table class="table">
+    <thead class="thead-dark"><tr style="text-align: right;"><th>Id</th><th>Name</th><th>Title</th><th>Subject</th><th>Published</th><th>Publication</th><th>Journalist</th></tr></thead>
+        <tbody>
+        {% for a,b,c,d,e,f,g in table %}   
+            <tr><td><a href="/article/delete?id={{ a }}"><img src="{{ url_for('static', filename='images/delete.png')}}" width="24px" height="24px" /></a><a href="/article/edit?id={{ a }}"><img src="{{ url_for('static', filename='images/edit.png') }}" width="24px" height="24px"/></a></td><td>{{ b }}</td><td>{{ c }}</td><td>{{ d }}</td><td>{{ e }}</td><td>{{ f }}</td><td>{{ g }}</td></tr>
+        {% endfor %}
+        </tbody>
+</table>

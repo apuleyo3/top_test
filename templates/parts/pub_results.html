@@ -1,0 +1,10 @@
+<table class="table">
+    <thead class="thead-dark"><tr style="text-align: right;"><th>Actions</th><th>Name</th><th>Web</th><th>Visitors</th><th>Address</th><th>Address 2</th><th>City</th>
+        <th>State</th><th>Zip code</th><th>Country</th><th>Market</th><th>Notes</th></tr></thead>
+        <tbody>
+        {% for a,b,c,d,e,f,g,h,i,j,k,l in table %}   
+            <tr><td><a href="/publication/delete?id={{ a }}"><img src="{{ url_for('static', filename='images/delete.png')}}" width="24px" height="24px" /></a><a href="/publication/edit?id={{ a }}"><img src="{{ url_for('static', filename='images/edit.png') }}" width="24px" height="24px"/></a></td><td>{{ b }}</td><td>{{ c }}</td><td>{{ d }}</td><td>{{ e }}</td><td>{{ f }}</td><td>{{ g }}</td><td>{{ h }}</td>
+                <td>{{ i }}</td><td>{{ j }}</td><td>{{ k }}</td><td>{{ l }}</td></tr>
+        {% endfor %}
+        </tbody>
+</table>

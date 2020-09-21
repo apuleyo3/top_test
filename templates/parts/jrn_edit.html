@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{title}}</title>
+        {% include 'header.html' %}
+    </head>
+    <body>
+        {% include 'nav.html' %}
+        <div class="container py-3">
+          <h1>Edit Publication</h1>
+        <form method="POST" action="/{{ action }}">
+          <div class="form-group">
+            <label for="name"  class="col-form-label">First name:</label>
+            <input type="text" name="fname" class="form-control" id="fname" value="{{ val[0][1] }}">
+          </div>
+          <div class="form-group">
+            <label for="lname"  class="col-form-label">Last name:</label>
+            <input type="text" name="lname" class="form-control" id="lname" value="{{ val[0][2] }}">
+          </div>
+          <div class="form-group">
+            <label for="email"  class="col-form-label">e-mail:</label>
+            <input type="email" name="email" class="form-control" id="email" value="{{ val[0][3] }}">
+          </div>
+          <div class="form-group">
+            <label for="phone"  class="col-form-label">Phone:</label>
+            <input type="number" name="phone" class="form-control" id="phone" value="{{ val[0][4] }}">
+          </div>
+          <div class="form-group">
+            <label for="language" class="col-form-label">Language spoken:</label>
+            <input type="text"  name="language" class="form-control" id="language-text" value="{{ val[0][5] }}">
+          </div>
+          <div class="form-group">
+            <label for="title" class="col-form-label">Title:</label>
+            <input type="text"  name="title" class="form-control" id="title-text" value="{{ val[0][6] }}">
+          </div>
+          <div class="form-group">
+            <label for="linkedin"  class="col-form-label">LinkedIn:</label>
+            <input type="text" name="linkedin" class="form-control" id="linkedin-text" value="{{ val[0][7] }}">
+          </div>
+          <div class="form-group">
+            <label for="twitter" class="col-form-label">Twitter:</label>
+            <input type="text" name="twitter" class="form-control" id="twitter-text" value="{{ val[0][8] }}">
+          </div>
+          <div class="form-group">
+            <label for="publication" class="col-form-label">Publication:</label>
+            <select name="publication" class="form-control" id="publication-text">
+                {% for k,v in iter %}
+                  {% if k == val[0][10] %}
+                    <option selected="selected" value="{{ k }}">{{ v }}</option>
+                  {% else %}
+                    <option value="{{ k }}">{{ v }}</option>
+                  {% endif %}
+                {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="notes" class="col-form-label">Notes:</label>
+            <textarea name="notes" class="form-control" id="notes-text">{{ val[0][9] }}</textarea>
+          </div>
+          <input class="btn btn-primary" id="submit" name="submit" type="submit" value="Submit">
+        </form>
+        </div>
+    </body>
+</html>
